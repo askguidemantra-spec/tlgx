@@ -1,0 +1,13 @@
+name: CRD Linux
+
+on: [workflow_dispatch]
+
+jobs:
+  ubuntu-rdp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Desktop and CRD
+        run: |
+          sudo apt update
+          sudo apt install -y xfce4 chrome-remote-desktop
+          # Set up Chrome Remote Desktop using your code
