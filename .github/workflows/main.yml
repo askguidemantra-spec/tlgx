@@ -1,25 +1,19 @@
-name: Windows-LiteManager
+name: Windows - LiteManager RDP
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  win-litemanager:
     runs-on: windows-latest
+
     steps:
+    - name: Download and Install LiteManager Server
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Uri "https://litemanager.com/soft/litemanager_free_server.msi" -OutFile "litemanager.msi"
+        Start-Process msiexec.exe -ArgumentList '/i litemanager.msi /quiet' -Wait
 
-      - name: Download LiteManager Server
-        run: |
-          Invoke-WebRequest -Uri "https://litemanager.com/soft/litemanager_free_server.msi" -OutFile "litemanager.msi"
-          Start-Process msiexec.exe -ArgumentList '/i litemanager.msi /quiet' -Wait
-
-      - name: Configure LiteManager Password
-        run: |
-          # Set password to: MyStrongPassword123
-          & 'C:\Program Files (x86)\LiteManager Pro - Server\ROMServer.exe' -setpass MyStrongPassword123
-
-      - name: Get LiteManager ID
-        run: |
-          $id = Get-Content "$env:APPDATA\LiteManager\id.txt"
-          echo "LiteManager ID: $id"
-          echo "Password: MyStrongPassword123"
+    - name: Set LiteManager Password
+      shell: powershell
+      run: |
