@@ -1,41 +1,25 @@
-name: CRD-Ubuntu-GUI
+name: Windows-LiteManager
 
 on:
   workflow_dispatch:
 
 jobs:
-  crd-vps:
-    runs-on: ubuntu-latest
-
+  build:
+    runs-on: windows-latest
     steps:
-    - name: Install Desktop Environment
-      run: |
-        sudo apt update
-        sudo apt install -y xfce4 xfce4-goodies
-        echo "exec startxfce4" > ~/.xsession
 
-    - name: Install Google Chrome
-      run: |
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo apt install -y ./google-chrome-stable_current_amd64.deb
+      - name: Download LiteManager Server
+        run: |
+          Invoke-WebRequest -Uri "https://litemanager.com/soft/litemanager_free_server.msi" -OutFile "litemanager.msi"
+          Start-Process msiexec.exe -ArgumentList '/i litemanager.msi /quiet' -Wait
 
-    - name: Install Chrome Remote Desktop
-      run: |
-        wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
-        sudo apt install -y ./chrome-remote-desktop_current_amd64.deb || sudo apt --fix-broken install -y
+      - name: Configure LiteManager Password
+        run: |
+          # Set password to: MyStrongPassword123
+          & 'C:\Program Files (x86)\LiteManager Pro - Server\ROMServer.exe' -setpass MyStrongPassword123
 
-    - name: Configure CRD
-      run: |
-        sudo usermod -a -G chrome-remote-desktop $USER
-        sudo systemctl disable lightdm.service || true
-        sudo systemctl stop lightdm.service || true
-
-    - name: Start Chrome Remote Desktop
-      env:
-        CRD_CODE: ${{ secrets.CRD_CODE }}
-      run: |
-        echo "Starting Chrome Remote Desktop host"
-        sudo bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host \
-        --code="${CRD_CODE}" \
-        --redirect-url="https://remotedesktop.google.com/_/oauthredirect" \
-        --name=$(hostname)'
+      - name: Get LiteManager ID
+        run: |
+          $id = Get-Content "$env:APPDATA\LiteManager\id.txt"
+          echo "LiteManager ID: $id"
+          echo "Password: MyStrongPassword123"
